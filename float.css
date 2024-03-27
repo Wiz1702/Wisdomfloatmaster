@@ -1,10 +1,11 @@
 canvas {
+    
     border:1px solid #000000;
     background-color: #80a8c2;
 }
 
 .instructions {
-    font-family: 'Arial', monospace;
+    font-family: 'Times New Roman', monospace;
     font-size: 18px;
     font-weight: bold;
     text-align: center;
