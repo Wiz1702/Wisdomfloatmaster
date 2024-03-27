@@ -4,7 +4,7 @@ var myScore;
 
 function startGame() {
     myGamePiece = new component(30, 30, "yellow", 10, 120);
-    myGamePiece.gravity = 0.05;
+    myGamePiece.gravity = 3;
     myScore = new component("30px", "Castellar", "black", 280, 40, "text");
     myGameArea.start();
 }
@@ -78,8 +78,25 @@ function component(width, height, color, x, y, type) {
 function updateGameArea() // Updates game area based on certain conditions
 {
     var x, height, gap, minHeight, maxHeight, minGap, maxGap;
+
+  if (myGamePiece.y >= myGameArea.canvas.height || myGamePiece.y + myGamePiece.height <= 0) {
+      // Player has gone out of the game area
+      clearInterval(myGameArea.interval);
+      var gameOverMessage = "Game Over, you scored " + myGameArea.frameNo;
+      ctx = myGameArea.context;
+      ctx.fillStyle = "black";
+      ctx.font = "30px Times New Roman";
+      ctx.fillText(gameOverMessage, 100, 150);
+      return;
+  }
     for (i = 0; i < myObstacles.length; i += 1) {
-        if (myGamePiece.crashWith(myObstacles[i])) {
+       if (myGamePiece.crashWith(myObstacles[i])|| (myGamePiece.x > myGameArea.canvas.width) ){
+            clearInterval(myGameArea.interval);
+            var gameOverMessage = "Game Over, you scored " + myGameArea.frameNo;
+            ctx = myGameArea.context;
+            ctx.fillStyle = "black";
+            ctx.font = "30px Times New Roman";
+            ctx.fillText(gameOverMessage, 100, 150);
             return;
         }
     }
@@ -93,8 +110,8 @@ function updateGameArea() // Updates game area based on certain conditions
         minGap = 50;
         maxGap = 200;
         gap = Math.floor(Math.random()*(maxGap-minGap+1)+minGap);
-        myObstacles.push(new component(10, height, "green", x, 0));
-        myObstacles.push(new component(10, x - height - gap, "green", x, height + gap));
+        myObstacles.push(new component(10, height, "red", x, 0));
+        myObstacles.push(new component(10, x - height - gap, "red", x, height + gap));
     }
     for (i = 0; i < myObstacles.length; i += 1) {
         myObstacles[i].x += -1;
@@ -112,6 +129,35 @@ function speedupGame() {
     myObstacles = [];
     startGame();
 }
+// Event listener for the spacebar key
+document.addEventListener("keydown", function(event) {
+    if (event.code === "Space") {
+        accelerate(-0.2); // Jump when spacebar is pressed
+    }
+});
+
+document.addEventListener("keyup", function(event) {
+    if (event.code === "Space") {
+        accelerate(0.05); // Reset gravity when spacebar is released
+    }
+});
+// Event listeners for the jump button (mousedown and touchstart for mobile devices)
+document.getElementById("jumpButton").addEventListener("mousedown", function() {
+    accelerate(-0.2); // Jump when button is pressed
+});
+
+document.getElementById("jumpButton").addEventListener("mouseup", function() {
+    accelerate(0.05); // Reset gravity when button is released
+});
+
+document.getElementById("jumpButton").addEventListener("touchstart", function() {
+    accelerate(-0.2); // Jump when button is touched
+});
+
+document.getElementById("jumpButton").addEventListener("touchend", function() {
+    accelerate(0.05); // Reset gravity when button is released
+});
+
 function everyinterval(n) //Ensures that the function is called every n frames(makes sure the square is within the right interval)
 {
     if ((myGameArea.frameNo / n) % 1 == 0) {return true;}
